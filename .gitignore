@@ -1,0 +1,8 @@
+# Don't keep data files
+data
+
+# Don't check-in secrets
+.env
+
+# Python files
+__pycache__
