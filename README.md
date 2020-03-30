@@ -1,0 +1,2 @@
+# Red-Means-Go
+YouTube has become a significant source of income for many content creators, and they are always looking for the best way to grow their channel. The purpose of our project is to analyze the significance of the various features of a YouTube thumbnail in a video’s success. We believe that there are features in YouTube thumbnails that can be extracted and used to identify what makes a video more appealing to potential viewers.     
