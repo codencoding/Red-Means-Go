@@ -6,3 +6,6 @@ data
 
 # Python files
 __pycache__
+
+# Notebook checkpoints
+notebooks/.ipynb_checkpoints
