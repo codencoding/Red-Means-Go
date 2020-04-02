@@ -9,4 +9,4 @@ __pycache__
 
 # Notebook checkpoints
 notebooks/.ipynb_checkpoints
-api_key.txt
+api_key.json
