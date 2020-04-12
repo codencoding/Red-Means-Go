@@ -12,59 +12,72 @@ import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 
-def request_channels(q_term, num_results,order_type):
-    # all arguments must be strings, returns json object with list of channels
-    youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, developerKey=api_key)
-    
-    # Search parameters
-    request = youtube.search().list(
-        part="snippet",
-        q=q_term,
-        maxResults=num_results,
-        type="channel",
-        order=order_type
-    )
-    response = request.execute()
 
-    return response
+def generate_dataset(q_term, num_channels, videos_per_channel):
+    topic_id = request_topic_id(q_term + " topic")
+    topic_recent_playlist_id = request_recent_playlist_id(topic_id)
+    recent_playlist_details = request_playlist_videos(topic_recent_playlist_id,5)
+    video_ids = get_video_ids(topic_recent_playlist_id, recent_playlist_details, num_channels)
+    parent_ids = get_parent_channels(video_ids)
+    channel_videos_dic = populate_channel_game_videos(q_term, parent_ids)
+    res = generate_result_dics(video_ids, parent_ids, channel_videos_dic)
+    return res
 
-def request_channel_videos(channel_id, num_results, order_type, page_token):
-    # all arguments must be strings, returns json object with list of videos from the given channel
-    
-    youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, developerKey=api_key)
-    if page_token:
-        request = youtube.search().list(
-            part="snippet",
-            maxResults=num_results,
-            type="video",
-            channelId=channel_id,
-            order=order_type,
-            pageToken=page_token
-        )
-    else:
-        request = youtube.search().list(
-            part="snippet",
-            maxResults=num_results,
-            type="video",
-            channelId=channel_id,
-            order=order_type
+
+def generate_result_dics(videos, parents, channel_videos):
+    all_results = []
+    for i in range(len(parents)):
+        out_dic = {"video_id": videos[i],
+                   "position": i,
+                   "channel_id": parents[i],
+                   "channel_videos": channel_videos[parents[i]]}
+        all_results.append(out_dic)
+    return all_results
+
+
+def get_channel_game_videos(game, parent):
+    request = youtube.channels().list(
+        part="snippet,contentDetails",
+        id=parent,
         )
     response = request.execute()
-    return response
+    uploads_id = response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+    uploads_details = request_playlist_videos(uploads_id, 50)
+    game_vids = []
+    for vid_data in uploads_details['items']:
+        vid_title = vid_data['snippet']['title'].lower()
+        vid_desc = vid_data['snippet']['description'].lower()
+        if game in vid_title or game in vid_desc:
+            game_vids.append(vid_data['snippet']['resourceId']['videoId'])
+    return game_vids
 
-def request_video_details(video_id, api_key, api_service_name, api_version):
-    """API cost of 7"""
-    youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, developerKey=api_key)
-    # note that this uses youtube.videos instead of youtube.search
-    request = youtube.videos().list(
-        part="snippet,contentDetails,statistics",
-        id=video_id
-    )
-    response = request.execute()
-    return response
+
+def get_parent_channels(video_ids):
+    parent_channel_ids = []
+    for vid_id in video_ids:
+        vid_content = request_sparse_video_details(vid_id)
+        parent_channel = vid_content['items'][0]['snippet']['channelId']
+        parent_channel_ids.append(parent_channel)
+    return parent_channel_ids
+
+
+def get_video_ids(playlist_id, playlist_details, num_vids):
+    recent_video_ids = []
+    for vid_data in playlist_details['items']:
+        recent_video_ids.append(vid_data['snippet']['resourceId']['videoId'])
+        if len(recent_video_ids) == num_vids:
+            break
+    next_token = playlist_details['nextPageToken']
+    cur_page = request_playlist_videos(playlist_id, 5, next_token)
+    while len(recent_video_ids) < num_vids:
+        cur_page = request_playlist_videos(playlist_id, 5, next_token)
+        for vid_data in cur_page['items']:
+            recent_video_ids.append(vid_data['snippet']['resourceId']['videoId'])
+            if len(recent_video_ids) == num_vids:
+                break
+        next_token = cur_page['nextPageToken']
+    return recent_video_ids
+
 
 def get_vid_stats(vid):
     channel_id = vid['snippet']['channelId']
@@ -90,101 +103,90 @@ def get_vid_stats(vid):
              "comments":int(comments)}
     return stats
 
-# full pipeline for scraping and generating dataframe
-def main_pipeline():
-    metadata = []
-    # get initial search results (usually going to be a list of channels)
-    out = request_channels("gaming","5","relevance")
-    data = out['items']
-    # get channel ids from search results
-    channel_ids = []
-    for channel in data:
-        cur_channel_id = channel['snippet']['channelId']
-        channel_ids.append(cur_channel_id)
-        # get channel videos from the current channel id (we can also choose to handpick channels / videos)
-        videos = request_channel_videos(cur_channel_id,"5","date",None)
-        video_ids = []
-        for video in videos['items']:
-            cur_id = video['id']['videoId']
-            video_ids.append(cur_id)
-            # use youtube videos api to get metadata about a single video, by video id
-            cur_vid = request_video_details(cur_id)['items'][0]
-            row = get_vid_stats(cur_vid)
-            metadata.append(row)
-        time.sleep(1)
 
-    # create a dataframe from the gathered metadata
-    columns = ['channelId','channelTitle','thumbnailLink',
-               'videoTitle','Date','Views',
-               'Likes','Dislikes','Comments']
-    df = pd.DataFrame(metadata,columns=columns)
-    return df
+def populate_channel_game_videos(game, parents):
+    channel_videos = {}
+    for par_chan in parents:
+        if par_chan not in channel_videos.keys():
+            channel_videos[par_chan] = get_channel_game_videos(game, par_chan)
+        else:
+            continue
+    return channel_videos
 
-def get_channel_id(q_term):
-    # rough channel conversion function (may not work all the time)
-    
-    init_search = request_channels(q_term,"1","relevance")
-    chan_id = init_search['items'][0]['snippet']['channelId']
-    return chan_id
 
-def generate_video_data(video_list):
-    # generates video data for each video in given list and returns a formatted df of video statistics
-    channel_data = []
-    for vid in video_list['items']:
-        cur_id = vid['id']['videoId']
-        cur_vid = request_video_details(cur_id)['items'][0]
-        row = get_vid_stats(cur_vid)
-        channel_data.append(row)
-    columns = ['channelId','channelTitle','thumbnailLink',
-               'videoTitle','Date','Views',
-               'Likes','Dislikes','Comments']
-    df = pd.DataFrame(channel_data,columns=columns)
-    df['Views'] = df['Views'].astype(int)
-    df['Likes'] = df['Likes'].astype(int)
-    df['Dislikes'] = df['Dislikes'].astype(int)
-    df['Comments'] = df['Comments'].astype(int)
-    return df
+def request_playlist_videos(playlist_id, num_results, page_token=None):
+    if page_token:
+        request = youtube.playlistItems().list(
+            part="snippet",
+            maxResults=num_results,
+            playlistId=playlist_id,
+            pageToken=page_token
+        )
+    else:
+        request = youtube.playlistItems().list(
+                part="snippet",
+                maxResults=num_results,
+                playlistId=playlist_id,
+            )
+    response = request.execute()
+    return response
 
-def generate_thumbnails(thumbnail_list):
-    # just makes a request call to the thumbnail link
-    imgs = []
-    for link in thumbnail_list:
-        response = requests.get(link)
-        img = Image.open(BytesIO(response.content))
-        imgs.append(img)
-    return imgs
 
-def evaluate_videos(df):
-    # evaulated based on z score of views and likes currently, very rough approx
-    avg_views = df['Views'].mean()
-    avg_likes = df['Likes'].mean()
-    avg_dislikes = df['Dislikes'].mean()
-    avg_comments = df['Comments'].mean()
-    
-    std_views = np.std(df['Views'])
-    std_likes = np.std(df['Likes'])
-    std_dislikes = np.std(df['Dislikes'])
-    std_comments = np.std(df['Comments'])
-    
-    z_views = df['Views'].apply(lambda x: (x - avg_views) / std_views)
-    z_likes = df['Likes'].apply(lambda x: (x - avg_likes) / std_likes)
-    z_dislikes = df['Dislikes'].apply(lambda x: (x - avg_dislikes) / std_dislikes)
-    z_comments = df['Comments'].apply(lambda x: (x - avg_comments) / std_comments)
-    
-    good_videos = []
-    bad_videos = []
-    for i in range(len(df)):
-        if z_views[i] > .3 and z_likes[i] > .3:
-            good_videos.append(i)
-        if z_views[i] < -.5 and z_likes[i] < -.5:
-            bad_videos.append(i)
+def request_recent_playlist_id(game_topic_channel):
+    request = youtube.channelSections().list(
+        part="snippet,contentDetails",
+        channelId=game_topic_channel,
+        )
+    response = request.execute()
+    recent_playlist = None
+    for section in response['items']:
+        try: 
+            if section['snippet']['localized']['title'] == "Recent Videos":
+                recent_playlist = section['contentDetails']['playlists'][0]
+            else:
+                continue
+        except:
+            continue
+    return recent_playlist
 
-    return good_videos, bad_videos
 
-def analyze_channel(keyword):
-    channel_id = get_channel_id(keyword)
-    channel_videos = request_channel_videos(channel_id, "30", "date", None)
-    video_data_df = generate_video_data(channel_videos)
-    video_thumbnails = generate_thumbnails(video_data_df['thumbnailLink'].values)
-    good_videos, bad_videos = evaluate_videos(video_data_df)
-    return good_videos, bad_videos
+def request_sparse_video_details(video_id):
+    youtube = googleapiclient.discovery.build(
+        api_service_name, api_version, developerKey=api_key)
+    # note that this uses youtube.videos instead of youtube.search
+    request = youtube.videos().list(
+        part="snippet",
+        id=video_id
+    )
+    response = request.execute()
+    return response 
+
+
+def request_topic_id(q_term): 
+    request = youtube.search().list(
+            part="snippet",
+            q=q_term,
+            maxResults="1",
+            type="channel",
+            order="relevance"
+            )
+    response = request.execute()
+    game_topic_channel = response['items'][0]['snippet']['channelId']
+    return game_topic_channel
+
+
+def request_video_details(video_id, api_key, api_service_name, api_version):
+    """API cost of 7"""
+    youtube = googleapiclient.discovery.build(
+        api_service_name, api_version, developerKey=api_key)
+    # note that this uses youtube.videos instead of youtube.search
+    request = youtube.videos().list(
+        part="snippet,contentDetails,statistics",
+        id=video_id
+    )
+    response = request.execute()
+    return response
+
+
+
+
