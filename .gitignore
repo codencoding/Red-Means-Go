@@ -1,5 +1,5 @@
 # Don't keep data files
-data
+data/raw
 
 # Don't check-in secrets
 .env
