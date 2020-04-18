@@ -1,3 +1,6 @@
 {
-    "video-categories":["gaming", "beauty", "food"]
+    "video-categories":["gaming", "beauty", "food"],
+    "selected-game":"fortnite",
+    "videos-dir":"data/out/",
+    "thumbnails-dir":"data/out/thumbnails/"
 }
