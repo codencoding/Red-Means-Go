@@ -1,5 +1,5 @@
 # Don't keep data files
-data/raw
+data
 
 # Don't check-in secrets
 .env
@@ -8,5 +8,5 @@ data/raw
 __pycache__
 
 # Notebook checkpoints
-notebooks/.ipynb_checkpoints
+notebooks/scraping/.ipynb_checkpoints
 api_key.json
