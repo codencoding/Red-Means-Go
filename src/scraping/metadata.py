@@ -87,3 +87,28 @@ def download_df_thumbs(df, save_dir, res):
     for v_id in df["videoId"]:
         download_vid_thumb(v_id, df, save_dir, res)
         
+def global_video_success(row, weights=None):
+    metric_cols = ["commentCount", "dislikeCount", "favoriteCount",
+                   "likeCount", "viewCount"]
+    if weights is None:
+        weights = [1 for _ in metric_cols]
+    weights[1] = -1
+    
+    scores = [row[key] for key in metric_cols]
+    return sum(scores)
+
+def channel_video_success(row, weights=None):
+    metric_cols = ["z_comments", "z_dislikes",
+                   "z_likes", "z_views"]
+    if weights is None:
+        weights = [1 for _ in metric_cols]
+    
+    scores = [row[key] for key in metric_cols]
+    return sum(scores)
+
+def get_success_metrics(df):
+    df["global_success"] = df.apply(global_video_success, axis=1)
+    df["global_success"] = zscore(df["global_success"], nan_policy="omit")
+    df["channel_success"] = df.apply(channel_video_success, axis=1)
+    
+    return df
