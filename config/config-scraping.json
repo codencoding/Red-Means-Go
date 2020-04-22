@@ -1,6 +1,15 @@
 {
     "video-categories":["gaming", "beauty", "food"],
     "selected-game":"fortnite",
-    "videos-dir":"data/out/",
-    "thumbnails-dir":"data/out/thumbnails/"
+    "thumbnail-qual":{
+        "default":0,
+        "medium":1,
+        "high":0,
+        "standard":0,
+        "maxres":0
+    },
+    "test-videos-dir":"data/test/{}/video_data/",
+    "test-thumbs-dir":"data/test/{}/thumbnails/",
+    "videos-dir":"data/local/{}/video_data/",
+    "thumbnails-dir":"data/local/{}/thumbnails/"    
 }
