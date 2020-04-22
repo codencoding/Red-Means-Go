@@ -3,6 +3,7 @@ import sys
 import json
 import pandas as pd
 import requests
+from scipy.stats import zscore
 
 sys.path.insert(0, os.path.abspath('../../src/scraping'))
 import youtube_requesting as ytr
