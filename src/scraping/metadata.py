@@ -145,16 +145,25 @@ def download_vid_thumb(video_id, df, save_dir, res):
 def download_df_thumbs(df, save_dir, res):
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
-    
+    num_thumbnails = len(df['videoId'])
+    count = 0
     for v_id in df["videoId"]:
-        download_vid_thumb(v_id, df, save_dir, res)
+        if count % 25 == 0:
+            print("Thumbnail Download:", count, "of", num_thumbnails)
+        count += 1
+        if os.path.exists(save_dir + v_id + ".jpg"):
+            continue
+        else:
+            download_vid_thumb(v_id, df, save_dir, res)
+    print("Thumbnails Successfully Downloaded!")
+        
         
 def generate_metadata(master_dic, data, game_title, api_keys, api_service_name, api_version):
     all_metadata = pd.DataFrame()
     progress_count = 0
     for searched_vid in data['data']:
-        if progress_count % 10 == 0:
-            print("Progress:",progress_count,"of",len(data['data']))
+        if progress_count % 25 == 0:
+            print("Metadata Progress:",progress_count,"of",len(data['data']))
         channel_game_vids = []
         for channel_vid in searched_vid['channel_videos']:
             if channel_vid in master_dic.keys():
@@ -322,7 +331,7 @@ def init_master_dic(dic_fp):
         return {}
     elif not os.path.exists(dic_fp):
         print("Requests Dictionary path does not exist. If you do not have a local requests dic, enter None")
-        raise
+        raise ValueError
     with open(dic_fp) as json_file:
         out_dic = json.load(json_file)
     return out_dic
@@ -344,6 +353,7 @@ def metadata_main(api_keys, api_service_name, api_version,
     out_df = generate_search_result_df(all_metadata, data)
     out_df.to_csv(out_fp,index=False)
     print("Metadata Saved at: " + out_fp)
+    return out_df
 
 def request_video_details(video_id, api_key, api_service_name, api_version):
     """API cost of 7"""
