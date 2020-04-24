@@ -8,5 +8,5 @@ data/local/
 __pycache__
 
 # Notebook checkpoints
-notebooks/scraping/.ipynb_checkpoints
+.ipynb_checkpoints
 api_key.json
