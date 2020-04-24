@@ -14,9 +14,13 @@
     "thumbnails-dir":"data/local/{}/thumbnails/",
     "api-service-name": "youtube",
     "api-version": "v3",
-    "test-metadata-csv-write-path": "data/test/{}/video_data/{}_full_metadata.csv",
+    "test-metadata-csv-read-path": "data/test/{}/video_data/{}_full_metadata.csv",
     "metadata-csv-write-path": "data/local/{}/video_data/{}_full_metadata.csv",
     "requests-dic-read-path": "data/local/{}/video_data/{}_requests.json",
     "requests-dic-write-path": "data/local/{}/video_data/{}_requests.json",
-    "test-scrape-results": "data/test/{}/video_data/scrape_04_16_20.json"
+    "test-scrape-results": "data/test/{}/video_data/scrape_04_16_20.json",
+    "scrape-results" : "data/local/{}/video_data/scrape_04_16_20.json",
+    "num-recent-videos": 200,
+    "videos-per-channel": 100,
+    "scrape-write-dir": "data/local/{}/video_data/"
 }
