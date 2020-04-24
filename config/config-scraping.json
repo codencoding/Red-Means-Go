@@ -1,0 +1,22 @@
+{
+    "video-categories":["gaming", "beauty", "food"],
+    "selected-game":"fortnite",
+    "thumbnail-qual":{
+        "default":0,
+        "medium":1,
+        "high":0,
+        "standard":0,
+        "maxres":0
+    },
+    "test-videos-dir":"data/test/{}/video_data/",
+    "test-thumbs-dir":"data/test/{}/thumbnails/",
+    "videos-dir":"data/local/{}/video_data/",
+    "thumbnails-dir":"data/local/{}/thumbnails/",
+    "api-service-name": "youtube",
+    "api-version": "v3",
+    "test-metadata-csv-write-path": "data/test/{}/video_data/{}_full_metadata.csv",
+    "metadata-csv-write-path": "data/local/{}/video_data/{}_full_metadata.csv",
+    "requests-dic-read-path": "data/local/{}/video_data/{}_requests.json",
+    "requests-dic-write-path": "data/local/{}/video_data/{}_requests.json",
+    "test-scrape-results": "data/test/{}/video_data/scrape_04_16_20.json"
+}
