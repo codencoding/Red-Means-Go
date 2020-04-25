@@ -8,6 +8,12 @@ sys.path.insert(0, os.path.abspath(ROOT_DIR + 'src/scraping'))
 import youtube_requesting as ytr
 import metadata as mdata
 
+sys.path.insert(0, os.path.abspath(ROOT_DIR + "src/modeling"))
+import facialFeatures as face
+import basic_stats as basic
+
+ 
+
 with open(ROOT_DIR + "config/" + "config-scraping.json") as f:
     cfg = json.load(f)
 
@@ -61,5 +67,7 @@ for qual in cfg["thumbnail-qual"]:
         mdata.download_df_thumbs(df, thumbnails_dir, res=qual)
 
 # do feature extraction
+basic_stats_df = basic.basic_image_stats(thumbnails_dir)
+advanced_stats_df = face.create_feature_database(thumbnails_dir)
 
 # combine feature extraction into a csv
