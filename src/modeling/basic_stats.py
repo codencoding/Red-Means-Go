@@ -1,31 +1,18 @@
-import pandas as pd
-from PIL import Image
-import numpy as np
-import os
-
-import cv2
-from skimage import io
-import skimage
-import os
-from skimage import data
-from skimage.color import rgb2hsv
-from scipy import ndimage
-
-def basic_image_stats(read_from)
+def basic_image_stats(read_from):
     filenames = []
     for filename in os.listdir(read_from):
         if filename.endswith(".jpg"):
             filenames.append(filename)
-
+            
     thumbnails = {'thumbnailFilename': filenames}
     df = pd.DataFrame(thumbnails)
 
     def get_video_id(filename):
         return filename.split('.')[0]
-
+    
     videoId = df['thumbnailFilename'].apply(lambda x: get_video_id(x))
     df.insert(loc=0, column='videoId', value=videoId)
-
+    
     def calc_image_stats(read_from, filename):
         filepath = read_from + filename
         image = io.imread(filepath)
@@ -40,6 +27,8 @@ def basic_image_stats(read_from)
         saturation_img = hsv_img[:,:, 1]
         value_img = hsv_img[:, :, 2]
 
+        num_rgb = len(np.unique(rgb_img.reshape(-1, rgb_img.shape[2]), axis=0))
+
         mean_hue = np.mean(hue_img, axis=(0,1))
 
         mean_saturation = np.mean(saturation_img, axis=(0,1))
@@ -53,14 +42,17 @@ def basic_image_stats(read_from)
         sobel_y = ndimage.sobel(value_img, axis=1, mode='constant')
         edge_image = np.hypot(sobel_x, sobel_y)
         edgesum = np.sum(edge_image)
+        
+        df.to_csv(ROOT_DIR + 'data/test/fortnite/video_data/basic_stats.csv', index=False)
 
-        return {'width': width,
-                'height': height,
-                'size': size,
-                'mean_hue': mean_hue,
-                'mean_saturation': mean_saturation,
-                'mean_brightness': mean_brightness,
-                'contrast': contrast,
+        return {'width': width, 
+                'height': height, 
+                'size': size, 
+                'num_rgb': num_rgb, 
+                'mean_hue': mean_hue, 
+                'mean_saturation': mean_saturation, 
+                'mean_brightness': mean_brightness, 
+                'contrast': contrast, 
                 'edge_score': edgesum}
     stats = []
     df['stats'] = df['thumbnailFilename'].apply(lambda x: calc_image_stats(read_from, x))
