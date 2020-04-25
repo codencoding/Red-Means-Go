@@ -45,7 +45,6 @@ def basic_image_stats(read_from):
         edge_image = np.hypot(sobel_x, sobel_y)
         edgesum = np.sum(edge_image)
         
-        df.to_csv(ROOT_DIR + 'data/test/fortnite/video_data/basic_stats.csv', index=False)
 
         return {'size': size, 
                 'num_rgb': num_rgb, 
@@ -58,4 +57,7 @@ def basic_image_stats(read_from):
     stats = []
     df['stats'] = df['thumbnailFilename'].apply(lambda x: calc_image_stats(read_from, x))
     df2 = pd.concat([df.drop(['stats'], axis=1), df['stats'].apply(pd.Series)], axis=1)
+    
+    df2.to_csv(ROOT_DIR + 'data/test/fortnite/video_data/basic_stats.csv', index=False)
+
     return df2
