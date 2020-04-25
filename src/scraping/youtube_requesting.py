@@ -75,12 +75,13 @@ def full_run_topic_channel(q_term, num_recent_videos, videos_per_channel):
     res = generate_result_dics(video_ids, parent_ids, channel_videos_dic)
     return res
 
-def generate_dataset(q_term, num_recent_videos, videos_per_channel):
-    start = datetime.now()
+def generate_dataset(q_term, num_recent_videos, videos_per_channel, write_path):
+    
     res = full_run_search_result(q_term, num_recent_videos, videos_per_channel)
-    end = datetime.now()
-    print("time elapsed:", end-start)
-    return res
+    date = time.strftime("%m_%d_%y",time.localtime())
+    fname = "scrape_" + date + ".json"
+    save_to_json(res, date, fname, write_path)
+    return write_path + fname
 
 
 def generate_result_dics(videos, parents, channel_videos):
