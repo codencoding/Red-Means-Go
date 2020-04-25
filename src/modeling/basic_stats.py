@@ -28,7 +28,9 @@ def basic_image_stats(read_from):
         value_img = hsv_img[:, :, 2]
 
         num_rgb = len(np.unique(rgb_img.reshape(-1, rgb_img.shape[2]), axis=0))
-
+        
+        unique_rgb_ratio = num_rgb/size
+        
         mean_hue = np.mean(hue_img, axis=(0,1))
 
         mean_saturation = np.mean(saturation_img, axis=(0,1))
@@ -45,10 +47,9 @@ def basic_image_stats(read_from):
         
         df.to_csv(ROOT_DIR + 'data/test/fortnite/video_data/basic_stats.csv', index=False)
 
-        return {'width': width, 
-                'height': height, 
-                'size': size, 
+        return {'size': size, 
                 'num_rgb': num_rgb, 
+                'unique_rgb_ratio': unique_rgb_ratio,
                 'mean_hue': mean_hue, 
                 'mean_saturation': mean_saturation, 
                 'mean_brightness': mean_brightness, 
