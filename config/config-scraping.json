@@ -11,6 +11,7 @@
     "test-videos-dir":"data/test/{}/video_data/",
     "test-thumbs-dir":"data/test/{}/thumbnails/",
     "videos-dir":"data/local/{}/video_data/",
+    "test-videos-dir":"data/test/{}/video_data/",
     "thumbnails-dir":"data/local/{}/thumbnails/",
     "api-service-name": "youtube",
     "api-version": "v3",
@@ -22,5 +23,6 @@
     "scrape-results" : "data/local/{}/video_data/scrape_04_16_20.json",
     "num-recent-videos": 200,
     "videos-per-channel": 100,
-    "scrape-write-dir": "data/local/{}/video_data/"
+    "scrape-write-dir": "data/local/{}/video_data/",
+    "basic-stats-file": "basic_stats_04_27_20.csv"
 }

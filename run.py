@@ -31,12 +31,14 @@ api_version = cfg['api-version']
 game_title = cfg['selected-game']
 master_dic_write_fp = cfg['requests-dic-write-path'].format(game_title, game_title)
 master_dic_fp = cfg['requests-dic-read-path'].format(game_title, game_title)
+basic_stats_fname = cfg['basic-stats-file']
 
 if "test" in args:
     # init test arguments / file paths
     out_fp = cfg['test-metadata-csv-read-path'].format(game_title,game_title)
     scrape_data_fp = cfg['test-scrape-results'].format(game_title)
     thumbnails_dir = ROOT_DIR + cfg['test-thumbs-dir'].format(game_title)
+    basic_stats_write_to = cfg['test-videos-dir'].format(game_title)
     
     # youtube data already present in test directory, no need to download
     
@@ -49,7 +51,9 @@ else:
     thumbnails_dir = ROOT_DIR + cfg['thumbnails-dir'].format(game_title)
     num_recent_videos = cfg['num-recent-videos']
     videos_per_channel = cfg['videos-per-channel']
-    write_scrape_dir = cfg['write-scrape-dir'].format(game_title)
+    write_scrape_dir = cfg['scrape-write-dir'].format(game_title)
+    basic_stats_write_to = cfg['videos-dir'].format(game_title)
+    
     
     # download youtube data
     scrape_data_fp = generate_dataset(game_title, num_recent_videos, videos_per_channel, write_scrape_dir)
@@ -67,7 +71,7 @@ for qual in cfg["thumbnail-qual"]:
         mdata.download_df_thumbs(df, thumbnails_dir, res=qual)
 
 # do feature extraction
-basic_stats_df = basic.basic_image_stats(thumbnails_dir)
+basic_stats_df = basic.basic_image_stats(thumbnails_dir,basic_stats_write_to,basic_stats_fname)
 advanced_stats_df = face.create_feature_database(thumbnails_dir)
 
 # combine feature extraction into a csv

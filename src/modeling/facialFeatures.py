@@ -35,7 +35,7 @@ def facial_analysis(face_locations,image,config='age, gender, race, emotion'):
 
 def facial_percentage(face_locations,image):
     result = []
-    img_pixelcount = image_obj.shape[0]*image_obj.shape[1]
+    img_pixelcount = face_locations.shape[0]*face_locations.shape[1]
     for f in face_locations:
         face_pixels = (f[2]-f[0])*(f[1]-f[3])
         result.append(face_pixels/img_pixelcount)
@@ -44,7 +44,11 @@ def facial_percentage(face_locations,image):
 def create_feature_database(IMG_DIR):
     cols = ['videoId','numFaces','emotions','face_locations','face_percent']
     feature_df = pd.DataFrame(columns=cols)
+    count = 0
     for filename in os.listdir(IMG_DIR):
+        if count % 25 == 0:
+            print("Images Processed:",count)
+        count += 1
         genders = []
         image_obj,num_faces,face_coords = facial_recognition(IMG_DIR+'/'+filename)
         #face locations coordinates are (top, right, bottom, left)
