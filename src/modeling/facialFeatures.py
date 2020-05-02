@@ -29,13 +29,13 @@ def facial_analysis(face_locations,image,config='age, gender, race, emotion'):
             face = np.asarray(face)
             demography = DeepFace.analyze(face,config)
             results.append(demography)
-        return results, face_locations
+        return results
     else:
-        return [],face_locations
+        return []
 
 def facial_percentage(face_locations,image):
     result = []
-    img_pixelcount = image_obj.shape[0]*image_obj.shape[1]
+    img_pixelcount = image.shape[0]*image.shape[1]
     for f in face_locations:
         face_pixels = (f[2]-f[0])*(f[1]-f[3])
         result.append(face_pixels/img_pixelcount)
@@ -48,17 +48,17 @@ def create_feature_database(IMG_DIR):
         genders = []
         image_obj,num_faces,face_coords = facial_recognition(IMG_DIR+'/'+filename)
         #face locations coordinates are (top, right, bottom, left)
-        analysis,face_locations = facial_analysis(face_coords,image_obj)
+        analysis = facial_analysis(face_coords,image_obj)
         if len(analysis)>0:
-            emotions = [f['dominant_emotion'] for f in analysis]
-            age = [f['age'] for f in analysis]
-            gender = [f['gender'] for f in analysis]
-            race = [f['dominant_race'] for f in analysis]
+            emotions = [analysis[f]['dominant_emotion'] for f in analysis]
+            age = [analysis[f]['age'] for f in analysis]
+            gender = [analysis[f]['gender'] for f in analysis]
+            race = [analysis[f]['dominant_race'] for f in analysis]
         else:
             emotions=age=gender=race=np.nan
             
-        face_percent = facial_percentage(image_obj,face_coords)
+        face_percent = facial_percentage(face_coords,image_obj)
         feature_df = feature_df.append({'videoId':filename[:-4],'numFaces':num_faces,'emotions':emotions,'age':age,
-                                        'gender':gender,'race':race,'face_locations':face_locations,
+                                        'gender':gender,'race':race,'face_locations':face_coords,
                                         'face_percent':face_percent}, ignore_index=True)
     return feature_df
