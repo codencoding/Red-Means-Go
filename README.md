@@ -1,6 +1,6 @@
 <p align="center">
     <b style="font-size: 45px;">Red Means Go</b><br>
-    <img width="384" height="384" src="https://raw.githubusercontent.com/codencoding/Red-Means-Go/gh-pages/images/logo.png">
+    <img width="768" height="432" src="https://raw.githubusercontent.com/codencoding/Red-Means-Go/gh-pages/images/logo.png">
 </p>
 
 ## Abstract
