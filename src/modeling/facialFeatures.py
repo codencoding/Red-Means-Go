@@ -27,9 +27,8 @@ def facial_analysis(face_locations,image,config='age, gender, race, emotion'):
         for f in face_locations:
             face = im.crop((f[3],f[0],f[1],f[2]))
             face = np.asarray(face)
-            demography = DeepFace.analyze(face,config)
-            results.append(demography)
-        return results
+        demography = DeepFace.analyze(face,config)
+        return demography
     else:
         return []
 
