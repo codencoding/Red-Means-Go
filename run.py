@@ -68,6 +68,6 @@ for qual in cfg["thumbnail-qual"]:
 
 # do feature extraction
 basic_stats_df = basic.basic_image_stats(thumbnails_dir)
-advanced_stats_df = face.create_feature_database(thumbnails_dir)
+advanced_stats_df = face.create_feature_data_batch(thumbnails_dir)
 
 # combine feature extraction into a csv
