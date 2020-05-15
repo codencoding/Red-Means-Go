@@ -123,4 +123,4 @@ def create_feature_data_batch(im_dir):
         df = df.append({'videoId': videoIds[i], 'numFaces': len(f), 'emotions': emotions, 'age': age,
                         'gender': gender, 'race': race, 'face_locations': f}, ignore_index=True)
 
-    return df
+    return df 
