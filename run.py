@@ -31,8 +31,12 @@ api_version = cfg['api-version']
 game_title = cfg['selected-game']
 master_dic_write_fp = cfg['requests-dic-write-path'].format(game_title, game_title)
 master_dic_fp = cfg['requests-dic-read-path'].format(game_title, game_title)
+full_feature_write_name = cfg['full-features-write-name'].format(game_title)
+videos_dir = cfg['videos-dir'].format(game_title)
+if not os.path.exists(videos_dir):
+    os.makedirs(videos_dir)
 
-if "test" in args:
+if "test-project" in args:
     # init test arguments / file paths
     out_fp = cfg['test-metadata-csv-read-path'].format(game_title,game_title)
     scrape_data_fp = cfg['test-scrape-results'].format(game_title)
@@ -71,3 +75,7 @@ basic_stats_df = basic.basic_image_stats(thumbnails_dir)
 advanced_stats_df = face.create_feature_data_batch(thumbnails_dir)
 
 # combine feature extraction into a csv
+all_image_stats_df = basic_stats_df.merge(advanced_stats_df,how="left",on="videoId")
+master_df = df.merge(all_image_stats_df,how="left",on="videoId")
+
+master_df.to_csv(ROOT_DIR+videos_dir + full_feature_write_name,index=False)
