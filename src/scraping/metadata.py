@@ -72,7 +72,7 @@ def download_vid_thumb(video_id, df, save_dir, res):
         
 def download_df_thumbs(df, save_dir, res):
     if not os.path.exists(save_dir):
-        os.mkdir(save_dir)
+        os.makedirs(save_dir)
     num_thumbnails = len(df['videoId'])
     count = 0
     for v_id in df["videoId"]:
