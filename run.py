@@ -17,27 +17,25 @@ import basic_stats as basic
 with open(ROOT_DIR + "config/" + "config-scraping.json") as f:
     cfg = json.load(f)
 
-with open(ROOT_DIR + "api_key.json") as f:
-    credentials = json.load(f)
-
 # read in command line arguments
 args = sys.argv
 
 
 # declare global vars from cfg json and credentials json
-api_keys = credentials['api_keys']
-api_service_name = cfg['api-service-name']
-api_version = cfg['api-version']
+
 game_title = cfg['selected-game']
 master_dic_write_fp = cfg['requests-dic-write-path'].format(game_title, game_title)
 master_dic_fp = cfg['requests-dic-read-path'].format(game_title, game_title)
 full_feature_write_name = cfg['full-features-write-name'].format(game_title)
 videos_dir = cfg['videos-dir'].format(game_title)
+api_service_name = cfg['api-service-name']
+api_version = cfg['api-version']
 if not os.path.exists(videos_dir):
     os.makedirs(videos_dir)
 
 if "test-project" in args:
     # init test arguments / file paths
+     
     out_fp = cfg['test-metadata-csv-read-path'].format(game_title,game_title)
     scrape_data_fp = cfg['test-scrape-results'].format(game_title)
     thumbnails_dir = ROOT_DIR + cfg['test-thumbs-dir'].format(game_title)
@@ -49,6 +47,9 @@ if "test-project" in args:
     print("Metadata Read Successfully!")
 else:
     # init default arguments / file paths
+    with open(ROOT_DIR + "api_key.json") as f:
+        credentials = json.load(f)
+    api_keys = credentials['api_keys']
     out_fp = cfg['metadata-csv-write-path'].format(game_title,game_title)
     thumbnails_dir = ROOT_DIR + cfg['thumbnails-dir'].format(game_title)
     num_recent_videos = cfg['num-recent-videos']
@@ -77,5 +78,4 @@ advanced_stats_df = face.create_feature_data_batch(thumbnails_dir)
 # combine feature extraction into a csv
 all_image_stats_df = basic_stats_df.merge(advanced_stats_df,how="left",on="videoId")
 master_df = df.merge(all_image_stats_df,how="left",on="videoId")
-
 master_df.to_csv(ROOT_DIR+videos_dir + full_feature_write_name,index=False)
