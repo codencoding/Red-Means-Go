@@ -16,13 +16,15 @@
     "api-service-name": "youtube",
     "api-version": "v3",
     "videos-dir":"data/local/{}/video_data/",
-    "metadata-csv-write-path": "data/local/{}/video_data/{}_full_metadata.csv",
-    "requests-dic-read-path": "data/local/{}/video_data/{}_requests.json",
+    "full-metadata-csv-write-path": "data/local/{}/video_data/{}_full_metadata.csv",
+    "summary-metadata-csv-write-path": "data/local/{}/video_data/{}_summary_metadata.csv",
+    "requests-dic-read-path": "",
     "requests-dic-write-path": "data/local/{}/video_data/{}_requests.json",  
     "scrape-results" : "data/local/{}/video_data/scrape_04_16_20.json",
-    "num-recent-videos": 200,
-    "videos-per-channel": 100,
+    "num-recent-videos": 20,
+    "videos-per-channel": 10,
     "scrape-write-dir": "data/local/{}/video_data/",
     "basic-stats-file": "basic_stats_04_27_20.csv",
-    "full-features-write-name": "{}_full_features_{}.csv"
+    "full-features-write-name": "{}_full_features{}.csv",
+    "overwrite":"false"
 }

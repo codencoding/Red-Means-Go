@@ -21,9 +21,17 @@ args = sys.argv
 
 # declare global vars from cfg json and credentials json
 game_title = cfg['selected-game']
+videos_dir = cfg['videos-dir'].format(game_title)
 cur_date = datetime.datetime.now().strftime('_%m_%d_%y')
 full_feature_write_name = cfg['full-features-write-name'].format(game_title,cur_date)
-videos_dir = cfg['videos-dir'].format(game_title)
+overwrite = cfg['overwrite']
+
+if (overwrite == "false") and os.path.exists(ROOT_DIR + videos_dir + full_feature_write_name):
+    vid_dir = os.listdir(videos_dir)
+    num_dupes = len([f for f in vid_dir if full_feature_write_name in f])
+    split_feature_name = full_feature_write_name.split(".")
+    full_feature_write_name = split_feature_name[0] + "(" + str(num_dupes) + ")." + split_feature_name[1]
+
 
 if not os.path.exists(videos_dir):
     os.makedirs(videos_dir)
@@ -41,7 +49,7 @@ if "test-project" in args:
     df = pd.read_csv(out_fp)
     print("Metadata Read Successfully!")
 else:
-    
+    print("FULL RUN")
     # init api credentials for scraping
     with open(ROOT_DIR + "api_key.json") as f:
         credentials = json.load(f)
@@ -50,21 +58,23 @@ else:
     # init default arguments / file paths    
     api_service_name = cfg['api-service-name']
     api_version = cfg['api-version']
-    out_fp = cfg['metadata-csv-write-path'].format(game_title,game_title)
+    out_fp = cfg['summary-metadata-csv-write-path'].format(game_title,game_title)
+    full_out_fp = cfg['full-metadata-csv-write-path'].format(game_title,game_title)
     thumbnails_dir = ROOT_DIR + cfg['thumbnails-dir'].format(game_title)
     num_recent_videos = cfg['num-recent-videos']
     videos_per_channel = cfg['videos-per-channel']
-    write_scrape_dir = cfg['write-scrape-dir'].format(game_title)
+    scrape_write_dir = cfg['scrape-write-dir'].format(game_title)
     master_dic_write_fp = cfg['requests-dic-write-path'].format(game_title, game_title)
     master_dic_fp = cfg['requests-dic-read-path'].format(game_title, game_title)
     
-    # download youtube data
-    scrape_data_fp = generate_dataset(game_title, num_recent_videos, videos_per_channel, write_scrape_dir)
+    # downloads youtube data and returns filepath of the downloaded data
+    scrape_data_fp = ytr.generate_dataset(game_title, num_recent_videos, videos_per_channel, scrape_write_dir, 
+                                          api_service_name, api_version, api_keys[0])
 
     # get metadata
-    df = mdata.metadata_main(api_keys, api_service_name, api_version, 
+    df, sum_df = mdata.metadata_main(api_keys, api_service_name, api_version, 
                   out_fp, master_dic_write_fp, scrape_data_fp, 
-                  game_title, master_dic_fp)
+                  game_title, master_dic_fp,full_out_fp)
 
 
 # download thumbnails
@@ -74,8 +84,9 @@ for qual in cfg["thumbnail-qual"]:
         mdata.download_df_thumbs(df, thumbnails_dir, res=qual)
 
 # do feature extraction
-basic_stats_df = basic.basic_image_stats(thumbnails_dir)
-advanced_stats_df = face.create_feature_data_batch(thumbnails_dir)
+thumbnail_list = df['videoId'].values
+basic_stats_df = basic.basic_image_stats(thumbnails_dir,thumbnail_list)
+advanced_stats_df = face.create_feature_data_batch(thumbnails_dir,thumbnail_list)
 
 # combine feature extraction into a csv
 all_image_stats_df = basic_stats_df.merge(advanced_stats_df,how="left",on="videoId")

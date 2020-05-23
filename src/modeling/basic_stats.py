@@ -6,12 +6,12 @@ from skimage.color import rgb2hsv
 import cv2
 from scipy import ndimage
 
-def basic_image_stats(read_from):
+def basic_image_stats(read_from, thumb_list):
     filenames = []
     for filename in os.listdir(read_from):
-        if filename.endswith(".jpg"):
+        if filename.endswith(".jpg") and (filename.split('.')[0] in thumb_list):
             filenames.append(filename)
-            
+    print("Getting basic stats for",len(filenames),"thumbnails")
     thumbnails = {'thumbnailFilename': filenames}
     df = pd.DataFrame(thumbnails)
 
