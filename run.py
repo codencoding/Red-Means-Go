@@ -28,7 +28,7 @@ overwrite = cfg['overwrite']
 
 if (overwrite == "false") and os.path.exists(ROOT_DIR + videos_dir + full_feature_write_name):
     vid_dir = os.listdir(videos_dir)
-    num_dupes = len([f for f in vid_dir if full_feature_write_name in f])
+    num_dupes = len([f for f in vid_dir if full_feature_write_name.split(".")[0] in f])
     split_feature_name = full_feature_write_name.split(".")
     full_feature_write_name = split_feature_name[0] + "(" + str(num_dupes) + ")." + split_feature_name[1]
 
@@ -41,7 +41,6 @@ if "test-project" in args:
     
     # init test arguments / file paths   
     out_fp = cfg['test-metadata-csv-read-path'].format(game_title,game_title)
-    scrape_data_fp = cfg['test-scrape-results'].format(game_title)
     thumbnails_dir = ROOT_DIR + cfg['test-thumbs-dir'].format(game_title)
     
     # youtube data already present in test directory, no need to download
@@ -58,8 +57,8 @@ else:
     # init default arguments / file paths    
     api_service_name = cfg['api-service-name']
     api_version = cfg['api-version']
-    out_fp = cfg['summary-metadata-csv-write-path'].format(game_title,game_title)
-    full_out_fp = cfg['full-metadata-csv-write-path'].format(game_title,game_title)
+    out_fp = cfg['summary-metadata-csv-write-path'].format(game_title,game_title,cur_date)
+    full_out_fp = cfg['full-metadata-csv-write-path'].format(game_title,game_title,cur_date)
     thumbnails_dir = ROOT_DIR + cfg['thumbnails-dir'].format(game_title)
     num_recent_videos = cfg['num-recent-videos']
     videos_per_channel = cfg['videos-per-channel']

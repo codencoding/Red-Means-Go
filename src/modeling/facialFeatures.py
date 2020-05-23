@@ -72,7 +72,7 @@ def create_feature_data_batch(im_dir,video_ids):
     faces_batch = []
     img_obj_batch = []
     img_objs = []
-    files = [f + ".jpg" for f in video_ids]
+    files = [f + ".jpg" for f in video_ids if os.path.exists(im_dir+f+".jpg")]
     last_file = files[-1]
     num_batch = 0
     for filename in files:
