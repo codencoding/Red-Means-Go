@@ -19,7 +19,7 @@ The analytical techniques we are using are as follows. For initial eda, we compu
 The results of our deep dive into how image features of thumbnails relate to video views are that there is no strong correlation between our thumbnail image features and video views. To show this, we’ve selected a couple visualizations to help see these results.
 
 <p align="center">
-    <img width="614" height="345" src="https://raw.githubusercontent.com/codencoding/Red-Means-Go/gh-pages/images/fig1.png"></img>
+    <img width="614" height="345" src="https://raw.githubusercontent.com/codencoding/Red-Means-Go/gh-pages/images/fig1.png">
 </p>
 
 <p align="center">
@@ -27,7 +27,7 @@ The results of our deep dive into how image features of thumbnails relate to vid
 </p>
 
 <p align="center">
-    <img width="614" height="345" src="https://raw.githubusercontent.com/codencoding/Red-Means-Go/gh-pages/images/fig2.png"></img>
+    <img width="614" height="345" src="https://raw.githubusercontent.com/codencoding/Red-Means-Go/gh-pages/images/fig2.png">
 </p>
 
 <p align="center">
@@ -37,7 +37,7 @@ The results of our deep dive into how image features of thumbnails relate to vid
 lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff 
 
 <p align="center">
-    <img width="614" height="345" src="https://raw.githubusercontent.com/codencoding/Red-Means-Go/gh-pages/images/fig3.png"></img>
+    <img width="614" height="345" src="https://raw.githubusercontent.com/codencoding/Red-Means-Go/gh-pages/images/fig3.png">
 </p>
 
 <p align="center">
@@ -59,8 +59,8 @@ We could expand our project scope in the future by looking at other video games 
 ## References
 Louise Myers 2019, accessed April 6, 2020, 
 
-https://louisem.com/198803/how-to-youtube-thumbnails
+[https://louisem.com/198803/how-to-youtube-thumbnails](https://louisem.com/198803/how-to-youtube-thumbnails)
 
 EmpLemon 2020, accessed May 4, 2020,
 
-https://www.youtube.com/watch?v=-6-i75wDIBE
+[https://www.youtube.com/watch?v=-6-i75wDIBE](https://www.youtube.com/watch?v=-6-i75wDIBE)
