@@ -63,7 +63,7 @@ def create_feature_database(IMG_DIR):
     return feature_df
 
 
-def create_feature_data_batch(im_dir):
+def create_feature_data_batch(im_dir,video_ids):
     cols = ['videoId', 'numFaces', 'emotions', 'age', 'gender', 'race', 'face_locations']
     df = pd.DataFrame(columns=cols)
     batch = 0
@@ -72,9 +72,10 @@ def create_feature_data_batch(im_dir):
     faces_batch = []
     img_obj_batch = []
     img_objs = []
-    last_file = os.listdir(im_dir)[-1]
+    files = [f + ".jpg" for f in video_ids if os.path.exists(im_dir+f+".jpg")]
+    last_file = files[-1]
     num_batch = 0
-    for filename in os.listdir(im_dir):
+    for filename in files:
         image = face_recognition.load_image_file(im_dir + '/' + filename)
         img_obj_batch.append(image)
         img_objs.append(image)
