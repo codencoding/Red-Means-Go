@@ -15,16 +15,16 @@ import googleapiclient.discovery
 import googleapiclient.errors
 
 
-def full_run_search_result(q_term, num_search_results, videos_per_channel):
+def full_run_search_result(youtube, q_term, num_search_results, videos_per_channel):
     
     # list of strings: 
-    # returns the list of video/parent channel ids from a search result with the given query term
-    video_ids, parent_ids = iterate_search_results(q_term, num_search_results)
+    # returns the lists of video/parent channel ids from a search result with the given query term
+    video_ids, parent_ids = iterate_search_results(youtube, q_term, num_search_results)
     
     # dictionary:
     # returns a dictionary where the keys are the parent channel ids
     # and the values are the video ids from the uploads playlist for that channel of length videos_per_channel
-    channel_videos_dic = populate_channel_game_videos(q_term, parent_ids, videos_per_channel)
+    channel_videos_dic = populate_channel_game_videos(youtube, q_term, parent_ids, videos_per_channel)
     print("------------------")
     print("unique channels gathered: ", len(channel_videos_dic.keys()))
     print("------------------")
@@ -75,12 +75,15 @@ def full_run_topic_channel(q_term, num_recent_videos, videos_per_channel):
     res = generate_result_dics(video_ids, parent_ids, channel_videos_dic)
     return res
 
-def generate_dataset(q_term, num_recent_videos, videos_per_channel, write_path):
-    
-    res = full_run_search_result(q_term, num_recent_videos, videos_per_channel)
+def generate_dataset(q_term, num_recent_videos, videos_per_channel, write_path, 
+                     api_service_name, api_version, api_key):
+    youtube = googleapiclient.discovery.build(
+        api_service_name, api_version, developerKey=api_key)
+    res = full_run_search_result(youtube, q_term, num_recent_videos, videos_per_channel)
     date = time.strftime("%m_%d_%y",time.localtime())
     fname = "scrape_" + date + ".json"
-    save_to_json(res, date, fname, write_path)
+    fname = save_to_json(res, date, write_path, fname)
+    print(write_path+fname)
     return write_path + fname
 
 
@@ -95,7 +98,7 @@ def generate_result_dics(videos, parents, channel_videos):
     return all_results
 
 
-def get_channel_game_videos(game, parent, num_vids):
+def get_channel_game_videos(youtube, game, parent, num_vids):
     request = youtube.channels().list(
         part="snippet,contentDetails",
         id=parent,
@@ -110,7 +113,7 @@ def get_channel_game_videos(game, parent, num_vids):
        
     # initial first page result
     uploads_id = response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
-    uploads_details = request_playlist_videos(uploads_id, max_results) 
+    uploads_details = request_playlist_videos(youtube, uploads_id, max_results) 
     for vid_data in uploads_details['items']:
         game_vids.append(vid_data['snippet']['resourceId']['videoId'])
         if len(game_vids) == num_vids:
@@ -119,6 +122,7 @@ def get_channel_game_videos(game, parent, num_vids):
     # if first page doesn't provide enough videos specified by num_vids, this iterates the pages
     # until the length of game_vids matches num_vids
     try:
+        
         next_token = uploads_details['nextPageToken']
         while len(game_vids) < num_vids:
             cur_page = request_playlist_videos(uploads_id, max_results, next_token)
@@ -126,12 +130,16 @@ def get_channel_game_videos(game, parent, num_vids):
                 game_vids.append(vid_data['snippet']['resourceId']['videoId'])
                 if len(game_vids) == num_vids:
                     break 
-
-            next_token = cur_page['nextPageToken']
+            if 'nextPageToken' in cur_page.keys():
+                next_token = cur_page['nextPageToken']
+            else:
+                print("No additional pages")
+                break
             time.sleep(3) # trying to not overload the api
-    except:
-        print("Probably next page token error")
-        print(uploads_details['items'][0]['snippet']['channelTitle'])
+    except Exception as e:
+        print("Error:",e)
+        print("Channel Title:",uploads_details['items'][0]['snippet']['channelTitle'])
+        print("continuing...")
     return game_vids
 
 
@@ -198,7 +206,7 @@ def get_vid_stats(vid):
     return stats
 
 
-def iterate_search_results(q_term, num_results):
+def iterate_search_results(youtube, q_term, num_results):
     print("------------------")
     print("Starting iteration of search results...")
     video_ids = []
@@ -208,7 +216,7 @@ def iterate_search_results(q_term, num_results):
     if num_results < 50:
         max_results = num_results
         
-    init_search = search_result(q_term, max_results)
+    init_search = search_result(youtube, q_term, max_results)
     for vid_data in init_search['items']:
         video_ids.append(vid_data['id']['videoId'])
         parent_ids.append(vid_data['snippet']['channelId'])
@@ -218,7 +226,7 @@ def iterate_search_results(q_term, num_results):
     try:
         next_token = init_search['nextPageToken']
         while len(video_ids) < num_results:
-            cur_page = search_result(q_term, max_results, next_token)
+            cur_page = search_result(youtube, q_term, max_results, next_token)
             for vid_data in cur_page['items']:
                 video_ids.append(vid_data['id']['videoId'])
                 parent_ids.append(vid_data['snippet']['channelId'])
@@ -233,7 +241,7 @@ def iterate_search_results(q_term, num_results):
     return video_ids, parent_ids
 
 
-def populate_channel_game_videos(game, parents, num_vids):
+def populate_channel_game_videos(youtube, game, parents, num_vids):
     print("------------------")
     print("Starting retrieval of channel videos for", len(parents), "channels...")
     channel_videos = {}
@@ -242,7 +250,7 @@ def populate_channel_game_videos(game, parents, num_vids):
         if counter % 5 == 0:
             print("Channels completed: " + str(counter), 100*counter/len(parents), "%")
         if par_chan not in channel_videos.keys():
-            channel_videos[par_chan] = get_channel_game_videos(game, par_chan, num_vids)
+            channel_videos[par_chan] = get_channel_game_videos(youtube, game, par_chan, num_vids)
             counter += 1
         else:
             counter += 1
@@ -250,7 +258,7 @@ def populate_channel_game_videos(game, parents, num_vids):
     print("------------------")
     return channel_videos
 
-def request_playlist_videos(playlist_id, num_results, page_token=None):
+def request_playlist_videos(youtube, playlist_id, num_results, page_token=None):
     if page_token:
         request = youtube.playlistItems().list(
             part="snippet",
@@ -330,7 +338,10 @@ def save_to_json(data, date, dir_path, fname, overwrite=False):
                "data": data
               }
     if os.path.exists(dir_path + fname) and not overwrite:
-        raise ValueError("Attempting to overwrite existing data. If you want to proceed pass overwrite=True")
+        cur_dir = os.listdir(dir_path)
+        fname_split = fname.split(".")
+        num_dupes = len([f for f in cur_dir if fname_split[0] in f])
+        fname = fname_split[0] + "(" + str(num_dupes) + ")." + fname_split[1]
     if os.path.isdir(dir_path):
         with open(dir_path + fname, 'w') as outfile:
             json.dump(out_dic, outfile)
@@ -338,8 +349,9 @@ def save_to_json(data, date, dir_path, fname, overwrite=False):
         os.makedirs(dir_path)
         with open(dir_path + fname, 'w') as outfile:
             json.dump(out_dic, outfile) 
+    return fname
             
-def search_result(q_term, max_results, page_token=None):
+def search_result(youtube, q_term, max_results, page_token=None):
     d = datetime.now()
     prev_month = d - dateutil.relativedelta.relativedelta(months=1)
     prev_month_rfc = prev_month.isoformat('T') + "Z"

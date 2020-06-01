@@ -72,7 +72,7 @@ def download_vid_thumb(video_id, df, save_dir, res):
         
 def download_df_thumbs(df, save_dir, res):
     if not os.path.exists(save_dir):
-        os.mkdir(save_dir)
+        os.makedirs(save_dir)
     num_thumbnails = len(df['videoId'])
     count = 0
     for v_id in df["videoId"]:
@@ -89,11 +89,12 @@ def download_df_thumbs(df, save_dir, res):
 def generate_metadata(master_dic, data, game_title, api_keys, api_service_name, api_version):
     all_metadata = pd.DataFrame()
     progress_count = 0
-    for searched_vid in data['data']:
+    api_idx = 0
+    for par_data in data['data']:
         if progress_count % 25 == 0:
-            print("Metadata Progress:",progress_count,"of",len(data['data']))
+            print("Metadata Progress:",progress_count,"of",len(data['data'])," Parent Channels")
         channel_game_vids = []
-        for channel_vid in searched_vid['channel_videos']:
+        for channel_vid in par_data['channel_videos']:
             if channel_vid in master_dic.keys():
                 cur_vid_details = master_dic[channel_vid]
                 cur_vid_stats = get_vid_stats(cur_vid_details)
@@ -137,15 +138,15 @@ def generate_metadata(master_dic, data, game_title, api_keys, api_service_name, 
 
 def generate_search_result_df(unique_metadata,data):
     out_data = []
-    for searched_vid in data['data']:
-        if searched_vid['video_id'] in unique_metadata['videoId'].values:
-            vid_stats = unique_metadata[unique_metadata['videoId'] == searched_vid['video_id']].iloc[0]
-            vid_stats['position'] = searched_vid['position']
+    for par_data in data['data']:
+        if par_data['video_id'] in unique_metadata['videoId'].values:
+            vid_stats = unique_metadata[unique_metadata['videoId'] == par_data['video_id']].iloc[0]
+            vid_stats['position'] = par_data['position']
             out_data.append(vid_stats)
         else:
             all_nans = unique_metadata.iloc[0].apply(lambda x: np.nan)
-            all_nans['videoId'] = searched_vid['video_id']
-            all_nans['position'] = searched_vid['position']
+            all_nans['videoId'] = par_data['video_id']
+            all_nans['position'] = par_data['position']
             out_data.append(all_nans)
     out_df = pd.DataFrame(out_data).reset_index(drop=True)
     return out_df
@@ -255,10 +256,11 @@ def global_video_success(row, weights=None):
 
 
 def init_master_dic(dic_fp):
-    if dic_fp == None:
+    if dic_fp == '':
         return {}
     elif not os.path.exists(dic_fp):
-        print("Requests Dictionary path does not exist. If you do not have a local requests dic, enter None")
+        print("Requests Dictionary path does not exist.")
+        print("If you do not have a local requests dic, pass '' in the config file for the key: 'requests-dic-read-path'")
         raise ValueError
     with open(dic_fp) as json_file:
         out_dic = json.load(json_file)
@@ -267,7 +269,7 @@ def init_master_dic(dic_fp):
     
 def metadata_main(api_keys, api_service_name, api_version,
                   out_fp, master_dic_write_fp, 
-                  init_data_fp, game_title, master_dic_fp):
+                  init_data_fp, game_title, master_dic_fp, full_out_fp):
     
     master_dic = init_master_dic(master_dic_fp)
     with open(init_data_fp) as json_file:
@@ -279,9 +281,10 @@ def metadata_main(api_keys, api_service_name, api_version,
         save_requests_dic(master_dic_write_fp, master_dic)
         
     out_df = generate_search_result_df(all_metadata, data)
+    all_metadata.to_csv(full_out_fp,index=False)
     out_df.to_csv(out_fp,index=False)
-    print("Metadata Saved at: " + out_fp)
-    return out_df
+    print("Summary Metadata Saved at: " + out_fp)
+    return all_metadata, out_df
 
 def request_video_details(video_id, api_key, api_service_name, api_version):
     """API cost of 7"""
