@@ -37,7 +37,7 @@ The results of our deep dive into how image features of thumbnails relate to vid
 The first two charts we chose to include are scatterplots of the predicted z_views vs the actual z_views. These predictions were obtained by training a random forest regressor and a gradient boosted regressor on the numerical image features gathered from our image processing ('unique_rgb_ratio','mean_hue', 'mean_saturation','mean_brightness', 'contrast', 'edge_score', numFaces’). The purpose of this graph is to show the lack of correlation between the predictions and the real values, which is shown by the score (coefficient of determination R<sup>2</sup>) for each being close to 0. A score of 0 is achieved by always predicting the mean value of z_views, making these regressors worse than the most naive approach. This shows the lack of relationship between the image features we used and the value of z_views that the video gets.
 
 <p align="center">
-    <img width="640" height="360" src="https://raw.githubusercontent.com/codencoding/Red-Means-Go/gh-pages/images/fig3.png">
+    <img width="960" height="540" src="https://raw.githubusercontent.com/codencoding/Red-Means-Go/gh-pages/images/fig3.png">
 </p>
 
 <p align="center">
