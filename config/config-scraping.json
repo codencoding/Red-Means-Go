@@ -1,5 +1,5 @@
 {
-    "selected-game":"fortnite",
+    "selected-game":"valorant",
     "thumbnail-qual":{
         "default":0,
         "medium":1,
@@ -9,7 +9,6 @@
     },
     "test-videos-dir":"data/test/{}/video_data/",
     "test-thumbs-dir":"data/test/{}/thumbnails/",
-    "test-videos-dir":"data/test/{}/video_data/",
     "test-metadata-csv-read-path": "data/test/{}/video_data/{}_full_metadata.csv",
     "thumbnails-dir":"data/local/{}/thumbnails/",
     "api-service-name": "youtube",
@@ -19,11 +18,9 @@
     "summary-metadata-csv-write-path": "data/local/{}/video_data/{}_summary_metadata{}.csv",
     "requests-dic-read-path": "",
     "requests-dic-write-path": "data/local/{}/video_data/{}_requests.json",  
-    "scrape-results" : "data/local/{}/video_data/scrape_04_16_20.json",
     "num-recent-videos": 20,
     "videos-per-channel": 10,
     "scrape-write-dir": "data/local/{}/video_data/",
-    "basic-stats-file": "basic_stats_04_27_20.csv",
     "full-features-write-name": "{}_full_features{}.csv",
     "overwrite":"false"
 }
