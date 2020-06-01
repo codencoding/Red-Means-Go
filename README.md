@@ -34,17 +34,17 @@ The results of our deep dive into how image features of thumbnails relate to vid
     <small> Figure (2): Gradient Boosted Regression on the z-score for video views </small>
 </p>
 
-lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff 
+The first two charts we chose to include are scatterplots of the predicted z_views vs the actual z_views. These predictions were obtained by training a random forest regressor and a gradient boosted regressor on the numerical image features gathered from our image processing ('unique_rgb_ratio','mean_hue', 'mean_saturation','mean_brightness', 'contrast', 'edge_score', numFaces’). The purpose of this graph is to show the lack of correlation between the predictions and the real values, which is shown by the score (coefficient of determination R<sup>2</sup>) for each being close to 0. A score of 0 is achieved by always predicting the mean value of z_views, making these regressors worse than the most naive approach. This shows the lack of relationship between the image features we used and the value of z_views that the video gets.
 
 <p align="center">
-    <img width="614" height="345" src="https://raw.githubusercontent.com/codencoding/Red-Means-Go/gh-pages/images/fig3.png">
+    <img width="640" height="360" src="https://raw.githubusercontent.com/codencoding/Red-Means-Go/gh-pages/images/fig3.png">
 </p>
 
 <p align="center">
     <small> Figure (3): Thumbnail image statistics </small>
 </p>
 
-lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff lorem ipsum text stuff 
+The third visualization we chose to include is a combination of  bar charts comparing the good performance videos (z_views > 1) and the poor performance videos (z_views < -1). We plot the values of the standard descriptive statistics to give a summary of values for the selected numerical image features. The adjacent bars allow for easy comparison for the different subsets of videos. This represents a conditional subset approach we used. By splitting up the data and looking at videos that did “well” and videos that did “poorly” , we are able to see some promising differences in thumbnail image features. Looking at the image features “unique_rgb_ratio” and “mean_hue”, we see consistent higher values for good videos than bad videos. This sheds light on the theory that more colorful thumbnails see greater success. We also see consistent differences in “contrast” and “edge_score”, this time the poorly performing videos having higher values. This alludes to “busier” thumbnails seeing less success. However, these differences are slight and not statistically significant, but we have hope that these features will direct some future analysis. 
 
 ## Discussion
 For all models, the predictions scored worse than predicting the mean for all values, indicating no such patterns exists, alluding to a lack of correlation between our image features and video views. The score for each model is either negative or very close to 0. According to SKLearn’s documentation, a score of 0 would be achieved by predicting the mean of the target column for all values. Because our models scored around 0 while trained on thumbnail features, we cannot say that there is any significant correlation between our thumbnail features and video views. We think this result is likely due to the relative importance of the thumbnail to the content of the video. We additionally looked at the correlation of the individual image features and video views, and found no significant correlation.
