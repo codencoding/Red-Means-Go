@@ -1,5 +1,5 @@
 <p align="center">
-    <b style="font-size: 45px;">Red Means Go</b><br>
+    <!-- <b style="font-size: 45px;">Red Means Go</b><br> -->
     <img width="614" height="345" src="https://raw.githubusercontent.com/codencoding/Red-Means-Go/gh-pages/images/site-logo.png">
 </p>
 
