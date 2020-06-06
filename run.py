@@ -26,6 +26,7 @@ cur_date = datetime.datetime.now().strftime('_%m_%d_%y')
 full_feature_write_name = cfg['full-features-write-name'].format(game_title,cur_date)
 overwrite = cfg['overwrite']
 
+# this prevents accidentally overwriting previously scraped data
 if (overwrite == "false") and os.path.exists(ROOT_DIR + videos_dir + full_feature_write_name):
     vid_dir = os.listdir(videos_dir)
     num_dupes = len([f for f in vid_dir if full_feature_write_name.split(".")[0] in f])
@@ -44,7 +45,6 @@ if "test-project" in args:
     thumbnails_dir = ROOT_DIR + cfg['test-thumbs-dir'].format(game_title)
     
     # youtube data already present in test directory, no need to download
-    # get metadata
     df = pd.read_csv(out_fp)
     print("Metadata Read Successfully!")
 else:
@@ -87,7 +87,7 @@ thumbnail_list = df['videoId'].values
 basic_stats_df = basic.basic_image_stats(thumbnails_dir,thumbnail_list)
 advanced_stats_df = face.create_feature_data_batch(thumbnails_dir,thumbnail_list)
 
-# combine feature extraction into a csv
+# combine feature extraction into a csv. Go to notebooks/eda for futher analysis of data
 all_image_stats_df = basic_stats_df.merge(advanced_stats_df,how="left",on="videoId")
 master_df = df.merge(all_image_stats_df,how="left",on="videoId")
 master_df.to_csv(ROOT_DIR + videos_dir + full_feature_write_name,index=False)

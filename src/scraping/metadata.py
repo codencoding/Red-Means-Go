@@ -270,16 +270,21 @@ def init_master_dic(dic_fp):
 def metadata_main(api_keys, api_service_name, api_version,
                   out_fp, master_dic_write_fp, 
                   init_data_fp, game_title, master_dic_fp, full_out_fp):
+    # driver function 
     
+    # loads cached data if any is present
     master_dic = init_master_dic(master_dic_fp)
     with open(init_data_fp) as json_file:
         data = json.load(json_file)
         
+    # generates metadata for entire dataset
     all_metadata = generate_metadata(master_dic, data, game_title, api_keys, api_service_name, api_version)
     
+    # saves request data to local memory
     if len(master_dic.keys()) > 0:
         save_requests_dic(master_dic_write_fp, master_dic)
-        
+    
+    # generates metadata only for search results
     out_df = generate_search_result_df(all_metadata, data)
     all_metadata.to_csv(full_out_fp,index=False)
     out_df.to_csv(out_fp,index=False)
