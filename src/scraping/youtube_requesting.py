@@ -77,13 +77,16 @@ def full_run_topic_channel(q_term, num_recent_videos, videos_per_channel):
 
 def generate_dataset(q_term, num_recent_videos, videos_per_channel, write_path, 
                      api_service_name, api_version, api_key):
+    # Driver Function: uses all other functions to generate the scraped dataset
+    # setting up the API
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, developerKey=api_key)
+    # change this function to change how the dataset is generated
+    # options are either search result, or topic channel
     res = full_run_search_result(youtube, q_term, num_recent_videos, videos_per_channel)
     date = time.strftime("%m_%d_%y",time.localtime())
     fname = "scrape_" + date + ".json"
     fname = save_to_json(res, date, write_path, fname)
-    print(write_path+fname)
     return write_path + fname
 
 
@@ -167,8 +170,6 @@ def get_video_ids(playlist_id, num_vids):
             break         
     
     # extends recent video ids if the num_vids was larger than the initial page's results
-    print(playlist_details)
-    print(recent_video_ids)
     next_token = playlist_details['nextPageToken']
     while len(recent_video_ids) < num_vids:
         cur_page = request_playlist_videos(playlist_id, max_results, next_token)
