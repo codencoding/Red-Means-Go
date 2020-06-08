@@ -6,21 +6,26 @@ from skimage.color import rgb2hsv
 import cv2
 from scipy import ndimage
 
-def basic_image_stats(read_from, thumb_list):
+#calculates basic image stats and exports to csv
+def basic_image_stats(read_from):
+    #creates filenames from thumbnail jpg files
     filenames = []
     for filename in os.listdir(read_from):
-        if filename.endswith(".jpg") and (filename.split('.')[0] in thumb_list):
+        if filename.endswith(".jpg"):
             filenames.append(filename)
-    print("Getting basic stats for",len(filenames),"thumbnails")
+            
+    #create column of filenames for merging with other dataframes
     thumbnails = {'thumbnailFilename': filenames}
     df = pd.DataFrame(thumbnails)
-
+    
+    #creates thumbnail file name column for easy access later on
     def get_video_id(filename):
         return filename.split('.')[0]
     
     videoId = df['thumbnailFilename'].apply(lambda x: get_video_id(x))
     df.insert(loc=0, column='videoId', value=videoId)
     
+    #helper function that takes in image filename and directory and calculate image stats and return a dictionary of values
     def calc_image_stats(read_from, filename):
         filepath = read_from + filename
         image = io.imread(filepath)
@@ -62,6 +67,8 @@ def basic_image_stats(read_from, thumb_list):
                 'mean_brightness': mean_brightness, 
                 'contrast': contrast, 
                 'edge_score': edgesum}
+    
+    #applies helper function for each thumbnail and converts dictionary to respective columns in dataframe
     stats = []
     df['stats'] = df['thumbnailFilename'].apply(lambda x: calc_image_stats(read_from, x))
     df2 = pd.concat([df.drop(['stats'], axis=1), df['stats'].apply(pd.Series)], axis=1)
