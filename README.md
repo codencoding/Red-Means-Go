@@ -56,6 +56,44 @@ With the growth of social media platforms such as YouTube, the job title of ‘c
 Our approach takes advantage of the digital format as we were able to scrape and process mass amounts of data which wouldn’t have been easy to do manually which enabled us to acquire and work with a substantially larger dataset. Since we parameterized our work, it is very flexible and can be configured to analyze different genres of Youtube videos which could be useful for a Youtuber as it would provide them with a snapshot of the current YouTube thumbnail meta and act as a soft guide when they are making their own.
 We could expand our project scope in the future by looking at other video games in the YouTube Gaming category or even other YouTube categories (such as make-up videos or VLOGS). Another direction is creating a live thumbnail meta analysis. We suspect that certain features in thumbnails rise and fall in popularity similar to fashion, so having a live trend analysis of thumbnails could prove useful. For instance, if faces in the thumbnail start becoming less popular, YouTubers might want to stay away from putting their face on a thumbnail. However, they might use the thumbnail meta analysis as a way to go against the meta which would make their thumbnails stick out. 
 
+## Getting Started / Extending this Project
+
+### Running the Pipeline
+
+To run the main pipeline, run the command “python run.py” in the repository’s root directory. To run this command you also need a youtube API key. The key can be obtained by following this guide: (https://developers.google.com/youtube/v3/getting-started). Once obtained, you need to create a file named “api_key.json” in the root directory of the repo. It needs to have one key called “api_keys”, which is a list of API keys as strings. You can include as many keys as you’d like to gather more datasets, as the youtube API has a daily limit. Additionally, the command “python run.py test-project” can be run, which runs the analysis on a curated test dataset. This is good for a quick option that does not require fiddling with configuration parameters or creating an API key. 
+
+### Output Files
+
+When running this pipeline locally, 5 output files will be generated in the “data/local/*selected-game*/video_data/” directory. The first file is the “scrape_MM_DD_YY.json” file, which represents a dataset of video_ids returned by the search result, and for each video_id, includes the specified number of video_ids from that channel that also match the *selected-game*. The second file is “*selected-game*_full_features_MM_DD_YY.csv”, which represents the dataset of metadata features, basic image features, and advanced image features for all videos in the dataset created on the date in the filename. The third file is “*selected-game*_full_metadata_MM_DD_YY.csv”, which contains only the metadata features for the dataset gathered on the specified date. The fourth file is “*selected-game*_requests.json”, which contains the massive amount of data returned by the youtube api for each video_id. This is constantly updated for any new videos that are scraped, which is why it does not have a date in the filename. The last file is “*selected-game*_summary_metadata_MM_DD_YY.csv”, this contains just the metadata for only the videos that appear in the search results, and not the videos within the channels that are contained in “*selected-game*_full_features_MM_DD_YY.csv”.
+
+
+### Further Analysis
+
+Once the pipeline has been run, further analysis of the data gathered can be found in the notebook “notebooks/eda/cwynne_combined_analysis.ipynb”. In the third cell of the notebook, specify which dataset that the analysis should be done on, usually selecting one of the generated output files mentioned above. The variable “data_path” should be set to the desired dataset. The target columns can also be changed in this cell, although it is recommended that the defaults are used. 
+
+
+### Configuration Parameters
+The run.py script will access the configuration file stored in “config/config-scraping.json”. This json file contains different parameters that allow you to change what data is scraped / analyzed. Below are the parameters in further detail.
+
+
+- selected-game: this  key represents what keyword will be used to search for videos. This does not have to be a game, but can be any keyword of your choosing. 
+- thumbnail-qual: This key holds a dictionary which can be thought of as a switch, put a 1 in any quality that you want a dataset of thumbnails for. 
+- test-videos-dir: This is the filepath of the test video folder, which contains files such as the video ids and metadata of the test subset.
+- test-thumbs-dir: This is the filepath of the directory of thumbnails for the test dataset.
+- api-service-name: This generally should not change, if the youtube api changes this argument, then this should be changed. 
+- api-version: This is the version of the API, currently the most updated version is “v3”, but this could be changed to use later or earlier versions, however the code has not been tested on different api versions.
+- videos-dir: This is the location of the currently scraped video data directory. Files in this folder are scraped based on the keyword and include the csv of video ids in the dataset and metadata information. This is only a local directory and is used for anything that is not the test dataset
+- full-metadata-csv-write-path: This is the filepath to write the metadata for all videos that were scraped. This includes the search result videos and the specified number of videos per channel by the key “videos-per-channel”).
+- summary-metadata-csv-write-path: This is the filepath to write only the initial search result videos and not the extra channel videos. 
+- requests-dic-read-path: This is the file path for a local json of request data that could exist from a previous run of this pipeline. If nothing is provided it will create a new file using “requests-dic-write-path” that can be used for reruns of the pipeline. This is to prevent re-requesting the same info for videos and making unnecessary API calls.
+- requests-dic-write-path: This is the path where the requests data json file is written for quicker reruns or saving of new requests data. 
+- num-recent-videos: This is the number of search results that will be gathered based on the “selected-game” keyword being searched with the youtube api. 
+- videos-per-channel: This is the videos per channel that are scraped, based on the different channels that uploaded videos in the search result for our keyword.
+- scrape-write-dir: This is the directory that all of our scraped video data gets written to. This includes the dataset of video ids, and the metadata dataset for these videos. This changes based on the “selected-game” keyword. 
+- full-features-write-name: This is the name of the file that contains metadata, basic image features, and advanced image features. It is stored in the directory specified by “videos-dir”
+- overwrite: if set to true, it will overwrite any previously scraped data that was scraped on the same calendar date. If set to false, it will simply add a number to the end of the new requests data file. 
+
+
 ## References
 Louise Myers 2019, accessed April 6, 2020, 
 
