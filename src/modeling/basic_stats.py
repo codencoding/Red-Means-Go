@@ -6,8 +6,9 @@ from skimage.color import rgb2hsv
 import cv2
 from scipy import ndimage
 
-#calculates basic image stats and exports to csv
+
 def basic_image_stats(read_from):
+    """calculates basic image stats and exports to csv"""
     #creates filenames from thumbnail jpg files
     filenames = []
     for filename in os.listdir(read_from):

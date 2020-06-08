@@ -5,15 +5,15 @@ import pandas as pd
 import face_recognition
 from deepface import DeepFace
 
-"""
-facial_recognition
-
-Identifies faces in an image
-
-Input : Filename
-Output : Image object, number of faces and list of face coordinates
-"""
 def facial_recognition(filename, cnn=True):
+    """
+    facial_recognition
+
+    Identifies faces in an image
+
+    Input : Filename
+    Output : Image object, number of faces and list of face coordinates
+    """
     #Load image from filename
     image = face_recognition.load_image_file(filename)
     if cnn:
@@ -26,16 +26,16 @@ def facial_recognition(filename, cnn=True):
     return image, len(face_locations), face_locations
 
 
-"""
-facial_analysis
-
-Analyze faces using DeepFace according to config with options of Race, Age, Gender and Emotion
-
-Input : list of face coordinates, image object, configuration string
-Output : result of analysis for features specified in config options
-"""
 
 def facial_analysis(face_locations, image, config='age, gender, race, emotion'):
+    """
+    facial_analysis
+
+    Analyze faces using DeepFace according to config with options of Race, Age, Gender and Emotion
+
+    Input : list of face coordinates, image object, configuration string
+    Output : result of analysis for features specified in config options
+    """
     #Skipped if no faces
     if len(face_locations) > 0:
         #Split up config string into list
@@ -54,16 +54,16 @@ def facial_analysis(face_locations, image, config='age, gender, race, emotion'):
         return []
 
 
-"""
-facial_percentage
-
-Returns percent of image each face takes up
-
-Input : list of face coordinates, image object
-Output : list of facial percentage for each face
-"""
 
 def facial_percentage(face_locations, image):
+    """
+    facial_percentage
+
+    Returns percent of image each face takes up
+
+    Input : list of face coordinates, image object
+    Output : list of facial percentage for each face
+    """
     result = []
     #Get image resolution
     img_pixelcount = image.shape[0] * image.shape[1]
@@ -75,17 +75,17 @@ def facial_percentage(face_locations, image):
     return result
 
 
-"""
-create_feature_database
-
-For each image in the thumbnail, preprocess and analyze images then returns a dataframe containing facial features for
-images containing faces
-
-Input : directory of thumbnails
-Output : dataframe containing facial features for all faces containing a face
-"""
 
 def create_feature_database(IMG_DIR):
+    """
+    create_feature_database
+
+    For each image in the thumbnail, preprocess and analyze images then returns a dataframe containing facial features for
+    images containing faces
+
+    Input : directory of thumbnails
+    Output : dataframe containing facial features for all faces containing a face
+    """
     cols = ['videoId', 'numFaces', 'emotions', 'face_locations', 'face_percent']
     #Create empty dataframe
     feature_df = pd.DataFrame(columns=cols)
@@ -112,17 +112,17 @@ def create_feature_database(IMG_DIR):
     return feature_df
 
 
-"""
-create_feature_data_batch
-
-Similar function to create_feature_data however utilizing the batch version of functions used in the original function
-suited towards larger set of images
-
-Input : directory of thumbnails, list of video ids
-Output : dataframe containing facial features for all faces containing a face
-"""
 
 def create_feature_data_batch(im_dir,video_ids):
+    """
+    create_feature_data_batch
+
+    Similar function to create_feature_data however utilizing the batch version of functions used in the original function
+    suited towards larger set of images
+
+    Input : directory of thumbnails, list of video ids
+    Output : dataframe containing facial features for all faces containing a face
+    """
     cols = ['videoId', 'numFaces', 'emotions', 'age', 'gender', 'race', 'face_locations']
     #Create empty dataframe
     df = pd.DataFrame(columns=cols)

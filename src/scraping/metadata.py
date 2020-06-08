@@ -21,6 +21,7 @@ import googleapiclient.errors
 
 
 def channel_video_success(row, weights=None):
+    """Get sum of z-scores as a success metric."""
     metric_cols = ["z_comments", "z_dislikes",
                    "z_likes", "z_views"]
     if weights is None:
@@ -31,6 +32,7 @@ def channel_video_success(row, weights=None):
 
 
 def check_vid_game(vid_stats, game_title):
+    """Confirm a video is about a given game_title."""
     game_title = game_title.lower()
     try:
         tags = vid_stats['tags']
@@ -60,6 +62,7 @@ def check_vid_game(vid_stats, game_title):
 
 
 def download_vid_thumb(video_id, df, save_dir, res):
+    """Download the video thumbnail from a given video_id."""
     dict_val = df[df.videoId == video_id]["thumbnails"].iloc[0]
     if pd.isnull(dict_val):
         return
@@ -71,6 +74,7 @@ def download_vid_thumb(video_id, df, save_dir, res):
         f.write(requests.get(url).content)
         
 def download_df_thumbs(df, save_dir, res):
+    """Download all video thumbnails from a given dataframe and output to save_dir."""
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     num_thumbnails = len(df['videoId'])
@@ -87,6 +91,7 @@ def download_df_thumbs(df, save_dir, res):
         
         
 def generate_metadata(master_dic, data, game_title, api_keys, api_service_name, api_version):
+    """Generate a statistic metadata csv based on retrieve YouTube video data."""
     all_metadata = pd.DataFrame()
     progress_count = 0
     api_idx = 0
@@ -133,10 +138,12 @@ def generate_metadata(master_dic, data, game_title, api_keys, api_service_name, 
         all_metadata = pd.concat([all_metadata,cur_metadata],sort=True).reset_index(drop=True)
         progress_count += 1
     unique_metadata = all_metadata.drop_duplicates().reset_index(drop=True)
+
     return unique_metadata
 
 
 def generate_search_result_df(unique_metadata,data):
+    """Create a dataframe based off of the retrieved data in data."""
     out_data = []
     for par_data in data['data']:
         if par_data['video_id'] in unique_metadata['videoId'].values:
@@ -153,6 +160,7 @@ def generate_search_result_df(unique_metadata,data):
         
         
 def get_success_metrics(df):
+    """Create success columns for a given df."""
     df["global_success"] = df.apply(global_video_success, axis=1)
     df["global_success"] = zscore(df["global_success"], nan_policy="omit")
     df["channel_success"] = df.apply(channel_video_success, axis=1)
@@ -161,6 +169,7 @@ def get_success_metrics(df):
 
 
 def get_vid_stats(vid):
+    """Get basic video statistics."""
     try:
         vid_id = vid['id']
     except:
@@ -245,6 +254,7 @@ def get_vid_stats(vid):
 
         
 def global_video_success(row, weights=None):
+    """Create a video success measurement based on basic video stats."""
     metric_cols = ["commentCount", "dislikeCount", "favoriteCount",
                    "likeCount", "viewCount"]
     if weights is None:
@@ -256,6 +266,7 @@ def global_video_success(row, weights=None):
 
 
 def init_master_dic(dic_fp):
+    """Create a master dictionary for holding video data from a YouTube json request output file."""
     if dic_fp == '':
         return {}
     elif not os.path.exists(dic_fp):
@@ -292,7 +303,7 @@ def metadata_main(api_keys, api_service_name, api_version,
     return all_metadata, out_df
 
 def request_video_details(video_id, api_key, api_service_name, api_version):
-    """API cost of 7"""
+    """Get video details from a video id; has an API cost of 7"""
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, developerKey=api_key)
     # note that this uses youtube.videos instead of youtube.search
@@ -304,6 +315,7 @@ def request_video_details(video_id, api_key, api_service_name, api_version):
     return response
 
 def save_requests_dic(fp, data):
+    """Create a requests json from used api requests."""
     with open(fp,"w") as json_file:
         json.dump(data, json_file)
     print("API Requests logged locally at: " + fp)

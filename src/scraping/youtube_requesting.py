@@ -16,7 +16,6 @@ import googleapiclient.errors
 
 
 def full_run_search_result(youtube, q_term, num_search_results, videos_per_channel):
-    
     # list of strings: 
     # returns the lists of video/parent channel ids from a search result with the given query term
     video_ids, parent_ids = iterate_search_results(youtube, q_term, num_search_results)
@@ -91,6 +90,7 @@ def generate_dataset(q_term, num_recent_videos, videos_per_channel, write_path,
 
 
 def generate_result_dics(videos, parents, channel_videos):
+    """Create a dictionary for video search results"""
     all_results = []
     for i in range(len(videos)):
         out_dic = {"video_id": videos[i],
@@ -102,6 +102,7 @@ def generate_result_dics(videos, parents, channel_videos):
 
 
 def get_channel_game_videos(youtube, game, parent, num_vids):
+    """Get all the videos from a channel related to the given game parameter."""
     request = youtube.channels().list(
         part="snippet,contentDetails",
         id=parent,
@@ -147,6 +148,7 @@ def get_channel_game_videos(youtube, game, parent, num_vids):
 
 
 def get_parent_channels(video_ids):
+    """Get a list of channel videos that correspond to the given video ids."""
     parent_channel_ids = []
     for vid_id in video_ids:
         vid_content = request_sparse_video_details(vid_id)
@@ -157,6 +159,7 @@ def get_parent_channels(video_ids):
 
 
 def get_video_ids(playlist_id, num_vids):
+    """Get the video ids of each video in the given playlist from playlist_id."""
     recent_video_ids = []
     max_results = 50
     if num_vids < max_results:
@@ -183,6 +186,7 @@ def get_video_ids(playlist_id, num_vids):
 
 
 def get_vid_stats(vid):
+    """Get basic video statistics from a video object."""
     channel_id = vid['snippet']['channelId']
     channel_title = vid['snippet']['channelTitle']
     try:
@@ -208,6 +212,7 @@ def get_vid_stats(vid):
 
 
 def iterate_search_results(youtube, q_term, num_results):
+    """Retrieve the full iterations of YouTube search pages until num_results videos are acquired."""
     print("------------------")
     print("Starting iteration of search results...")
     video_ids = []
@@ -243,6 +248,7 @@ def iterate_search_results(youtube, q_term, num_results):
 
 
 def populate_channel_game_videos(youtube, game, parents, num_vids):
+    """Retrieve relevant gaming videos for all distinct channels."""
     print("------------------")
     print("Starting retrieval of channel videos for", len(parents), "channels...")
     channel_videos = {}
@@ -260,6 +266,7 @@ def populate_channel_game_videos(youtube, game, parents, num_vids):
     return channel_videos
 
 def request_playlist_videos(youtube, playlist_id, num_results, page_token=None):
+    """Request all the videos from a playlist_id using YouTube's api."""
     if page_token:
         request = youtube.playlistItems().list(
             part="snippet",
@@ -278,6 +285,7 @@ def request_playlist_videos(youtube, playlist_id, num_results, page_token=None):
 
 
 def request_recent_playlist_id(game_topic_channel):
+    """Request the recent videos playlist corresponding to a given game topic."""
     request = youtube.channelSections().list(
         part="snippet,contentDetails",
         channelId=game_topic_channel,
@@ -296,6 +304,7 @@ def request_recent_playlist_id(game_topic_channel):
 
 
 def request_sparse_video_details(video_id):
+    """Retrieve sparse video data from a video_id."""
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, developerKey=api_key)
     # note that this uses youtube.videos instead of youtube.search
@@ -308,6 +317,7 @@ def request_sparse_video_details(video_id):
 
 
 def request_topic_id(q_term): 
+    """Find a channel topic id given a query term."""
     request = youtube.search().list(
             part="snippet",
             q=q_term,
@@ -320,9 +330,8 @@ def request_topic_id(q_term):
     return game_topic_channel
 
 
-
 def request_video_details(video_id, api_key, api_service_name, api_version):
-    """API cost of 7"""
+    """Get video details from a video id; API cost of 7"""
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, developerKey=api_key)
     # note that this uses youtube.videos instead of youtube.search
@@ -335,6 +344,7 @@ def request_video_details(video_id, api_key, api_service_name, api_version):
 
 
 def save_to_json(data, date, dir_path, fname, overwrite=False):  
+    """Save retrieved data to a json in dir_path."""
     out_dic = {"date_scraped": date,
                "data": data
               }
@@ -353,6 +363,7 @@ def save_to_json(data, date, dir_path, fname, overwrite=False):
     return fname
             
 def search_result(youtube, q_term, max_results, page_token=None):
+    """Return a list of videos the correspond to the given query term."""
     d = datetime.now()
     prev_month = d - dateutil.relativedelta.relativedelta(months=1)
     prev_month_rfc = prev_month.isoformat('T') + "Z"
